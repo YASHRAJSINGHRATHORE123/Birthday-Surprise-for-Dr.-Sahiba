@@ -42,10 +42,10 @@ const Typewriter = ({ messages }: { messages: string[] }) => {
 const Petals = () => {
   const petals = Array.from({ length: 25 }).map((_, i) => ({
     id: i,
-    left: `${Math.random() * 100}vw`,
-    animationDuration: `${8 + Math.random() * 10}s`,
-    animationDelay: `${Math.random() * 15}s`,
-    size: `${14 + Math.random() * 16}px`,
+    left: Math.random() * 100,
+    duration: 8 + Math.random() * 10,
+    delay: Math.random() * 15,
+    size: 14 + Math.random() * 16,
     emoji: ['🌸', '🌺', '🌷', '💮', '🌹', '✿'][Math.floor(Math.random() * 6)]
   }));
 
@@ -55,7 +55,7 @@ const Petals = () => {
         <motion.div
           key={p.id}
           className="absolute -top-10"
-          style={{ left: p.left, fontSize: p.size }}
+          style={{ left: `${p.left}vw`, fontSize: p.size }}
           animate={{
             y: ['0vh', '110vh'],
             x: [0, Math.random() * 100 - 50, Math.random() * 100 - 50],
@@ -63,8 +63,8 @@ const Petals = () => {
             opacity: [0, 0.8, 0.8, 0]
           }}
           transition={{
-            duration: parseFloat(p.animationDuration),
-            delay: parseFloat(p.animationDelay),
+            duration: p.duration,
+            delay: p.delay,
             repeat: Infinity,
             ease: "linear"
           }}
@@ -77,42 +77,6 @@ const Petals = () => {
 };
 
 // Shooting Stars
-const ShootingStars = () => {
-  const [stars, setStars] = useState<{id: number, top: string, left: string, angle: number}[]>([]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setStars(prev => [
-        ...prev.slice(-3),
-        {
-          id: Date.now(),
-          top: `${Math.random() * 40}vh`,
-          left: `${Math.random() * 80}vw`,
-          angle: 25 + Math.random() * 20
-        }
-      ]);
-    }, 3500);
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-      <AnimatePresence>
-        {stars.map(star => (
-          <motion.div
-            key={star.id}
-            initial={{ opacity: 1, x: 0, y: 0 }}
-            animate={{ opacity: 0, x: 500, y: 500 }}
-            transition={{ duration: 1.2, ease: "linear" }}
-            className="absolute w-32 h-[2px] bg-gradient-to-r from-white to-transparent rounded-full"
-            style={{ top: star.top, left: star.left, transform: `rotate(${star.angle}deg)` }}
-          />
-        ))}
-      </AnimatePresence>
-    </div>
-  );
-};
-
 // Floating Icons
 const FloatingIcons = () => {
   return (
@@ -126,6 +90,61 @@ const FloatingIcons = () => {
       <motion.div animate={{ y: [0, -15, 0], rotate: [0, 5, 0] }} transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 2 }} className="absolute bottom-1/4 left-[20%]">
         <BookOpen size={64} className="text-blue-300" />
       </motion.div>
+    </div>
+  );
+};
+
+// Smoke Component for Blown Candle
+const Smoke = () => {
+  return (
+    <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-10 h-20 pointer-events-none">
+      {[...Array(5)].map((_, i) => (
+        <motion.div
+          key={i}
+          initial={{ opacity: 0, y: 0, scale: 0.5 }}
+          animate={{ 
+            opacity: [0, 0.3, 0], 
+            y: -100 - Math.random() * 50, 
+            x: (Math.random() - 0.5) * 40,
+            scale: [0.5, 1.5, 2] 
+          }}
+          transition={{ 
+            duration: 2 + Math.random() * 2, 
+            repeat: Infinity, 
+            delay: i * 0.4,
+            ease: "easeOut"
+          }}
+          className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-4 bg-white/20 rounded-full blur-xl"
+        />
+      ))}
+    </div>
+  );
+};
+
+// Floating Particles Component
+const FloatingParticles = () => {
+  return (
+    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+      {[...Array(30)].map((_, i) => (
+        <motion.div
+          key={i}
+          initial={{ 
+            x: Math.random() * 100 + "vw", 
+            y: Math.random() * 100 + "vh",
+            opacity: Math.random() * 0.5
+          }}
+          animate={{ 
+            y: [null, Math.random() * 100 + "vh"],
+            x: [null, Math.random() * 100 + "vw"],
+          }}
+          transition={{ 
+            duration: 20 + Math.random() * 20, 
+            repeat: Infinity, 
+            ease: "linear" 
+          }}
+          className="absolute w-1 h-1 bg-pink-200/30 rounded-full blur-[1px]"
+        />
+      ))}
     </div>
   );
 };
@@ -158,6 +177,9 @@ const Cake = ({ onBlow, isBlown }: { onBlow: () => void, isBlown: boolean }) => 
         </div>
         {/* Wick */}
         <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-1 h-2 bg-zinc-800 rounded-t-sm"></div>
+        
+        {/* Smoke when blown */}
+        {isBlown && <Smoke />}
         
         {/* Flame */}
         <AnimatePresence>
@@ -264,47 +286,69 @@ const FloatingBalloons = () => {
   const [balloons, setBalloons] = useState(Array.from({ length: 15 }).map((_, i) => ({
     id: i,
     left: `${5 + Math.random() * 90}vw`,
-    delay: Math.random() * 10,
-    duration: 12 + Math.random() * 10,
+    delay: Math.random() * 5,
+    duration: 8 + Math.random() * 8,
     color: ['bg-pink-500', 'bg-purple-500', 'bg-red-400', 'bg-amber-400', 'bg-blue-400'][Math.floor(Math.random() * 5)],
     popped: false,
-    popMessage: ['Smile! ✨', 'Stay Blessed! 🙏', 'Keep Shining! 🌟', 'Happy Bday! 🎉', 'You are loved! 💖'][Math.floor(Math.random() * 5)]
+    popMessage: ['Smile! ✨', 'Stay Blessed! 🙏', 'Keep Shining! 🌟', 'Happy Bday! 🎉', 'You are loved! 💖', 'Stay Awesome! 😎', 'Magic is Real! 🪄', 'Dream Big! 🌈'][Math.floor(Math.random() * 8)]
   })));
 
-  const [popTexts, setPopTexts] = useState<{id: number, x: number, y: number, text: string}[]>([]);
+  const [popTexts, setPopTexts] = useState<{id: number, x: number, y: number, text: string, color: string}[]>([]);
+  const [blasts, setBlasts] = useState<{id: number, x: number, y: number, color: string}[]>([]);
+  const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
 
-  const triggerPop = (id: number, x: number, y: number, text: string) => {
+  useEffect(() => {
+    return () => {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      timeoutsRef.current.forEach(clearTimeout);
+    };
+  }, []);
+
+  const triggerPop = (id: number, x: number, y: number, text: string, color: string) => {
     setBalloons(prev => prev.map(b => b.id === id ? { ...b, popped: true } : b));
-    const newText = { id: Date.now() + Math.random(), x, y, text };
+    
+    // Add blast effect
+    const blastId = Date.now();
+    setBlasts(prev => [...prev, { id: blastId, x, y, color }]);
+    const blastTimeout = setTimeout(() => {
+      setBlasts(prev => prev.filter(b => b.id !== blastId));
+    }, 1000);
+    timeoutsRef.current.push(blastTimeout);
+
+    // Add pop text
+    const newTextId = Date.now() + Math.random();
+    const newText = { id: newTextId, x, y, text, color };
     setPopTexts(prev => [...prev, newText]);
-    setTimeout(() => {
-      setPopTexts(prev => prev.filter(t => t.id !== newText.id));
-    }, 1500);
+    
+    const textTimeout = setTimeout(() => {
+      setPopTexts(prev => prev.filter(t => t.id !== newTextId));
+    }, 2500);
+    timeoutsRef.current.push(textTimeout);
 
     // Respawn balloon after a delay
-    setTimeout(() => {
+    const respawnTimeout = setTimeout(() => {
       setBalloons(prev => prev.map(b => b.id === id ? { 
         ...b, 
         popped: false, 
         left: `${5 + Math.random() * 90}vw`,
-        delay: Math.random() * 2, // shorter delay for respawn
-        duration: 12 + Math.random() * 10,
+        delay: Math.random() * 2,
+        duration: 8 + Math.random() * 8,
         color: ['bg-pink-500', 'bg-purple-500', 'bg-red-400', 'bg-amber-400', 'bg-blue-400'][Math.floor(Math.random() * 5)],
-        popMessage: ['Smile! ✨', 'Stay Blessed! 🙏', 'Keep Shining! 🌟', 'Happy Bday! 🎉', 'You are loved! 💖'][Math.floor(Math.random() * 5)]
+        popMessage: ['Smile! ✨', 'Stay Blessed! 🙏', 'Keep Shining! 🌟', 'Happy Bday! 🎉', 'You are loved! 💖', 'Stay Awesome! 😎', 'Magic is Real! 🪄', 'Dream Big! 🌈'][Math.floor(Math.random() * 8)]
       } : b));
-    }, 2000);
+    }, 3000);
+    timeoutsRef.current.push(respawnTimeout);
   };
 
-  const popBalloon = (id: number, e: React.MouseEvent, text: string) => {
-    triggerPop(id, e.clientX, e.clientY, text);
+  const popBalloon = (id: number, e: React.MouseEvent, text: string, color: string) => {
+    triggerPop(id, e.clientX, e.clientY, text, color);
   };
 
-  const autoPopBalloon = (id: number, text: string, leftStr: string) => {
-    // Calculate approximate X based on left percentage
+  const autoPopBalloon = (id: number, text: string, leftStr: string, color: string) => {
     const leftPercent = parseFloat(leftStr);
     const x = (leftPercent / 100) * window.innerWidth;
-    const y = 50; // Pop exactly at the top edge, text slightly below
-    triggerPop(id, x, y, text);
+    const y = 50;
+    triggerPop(id, x, y, text, color);
   };
 
   return (
@@ -317,11 +361,11 @@ const FloatingBalloons = () => {
                 initial={{ y: '110vh', x: 0 }}
                 animate={{ y: '0vh', x: [0, Math.random() * 100 - 50, 0] }}
                 transition={{ duration: b.duration, delay: b.delay, ease: "linear" }}
-                onAnimationComplete={() => autoPopBalloon(b.id, b.popMessage, b.left)}
+                onAnimationComplete={() => autoPopBalloon(b.id, b.popMessage, b.left, b.color)}
                 className="absolute pointer-events-auto cursor-crosshair"
                 style={{ left: b.left }}
-                onClick={(e) => popBalloon(b.id, e, b.popMessage)}
-                exit={{ scale: 1.5, opacity: 0, transition: { duration: 0.2 } }}
+                onClick={(e) => popBalloon(b.id, e, b.popMessage, b.color)}
+                exit={{ scale: 2, opacity: 0, transition: { duration: 0.1 } }}
               >
                 <div className={`w-12 h-16 rounded-[50%_50%_50%_50%/60%_60%_40%_40%] ${b.color} shadow-[inset_-5px_-5px_15px_rgba(0,0,0,0.2)] relative flex items-center justify-center hover:brightness-110 transition-all`}>
                   <div className="absolute bottom-[-8px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[8px] border-b-white/50"></div>
@@ -338,13 +382,38 @@ const FloatingBalloons = () => {
         {popTexts.map(pt => (
           <motion.div
             key={pt.id}
-            initial={{ opacity: 1, scale: 0.5, y: pt.y, x: pt.x }}
-            animate={{ opacity: 0, scale: 1.5, y: pt.y - 100, x: pt.x }}
-            transition={{ duration: 1.5, ease: "easeOut" }}
-            className="fixed z-50 text-pink-300 font-bold text-2xl drop-shadow-[0_0_10px_rgba(255,105,180,0.8)] pointer-events-none whitespace-nowrap -translate-x-1/2 -translate-y-1/2"
+            initial={{ opacity: 0, scale: 0.5, y: pt.y, x: pt.x }}
+            animate={{ opacity: [0, 1, 1, 0], scale: [0.5, 1.2, 1, 0.8], y: pt.y - 150, x: pt.x }}
+            transition={{ duration: 2.5, ease: "easeOut" }}
+            className={`fixed z-50 font-bold text-3xl drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] pointer-events-none whitespace-nowrap -translate-x-1/2 -translate-y-1/2 ${pt.color.replace('bg-', 'text-')}`}
           >
-            {pt.text}
+            <div className="bg-black/40 backdrop-blur-sm px-4 py-2 rounded-2xl border border-white/20">
+              {pt.text}
+            </div>
           </motion.div>
+        ))}
+      </AnimatePresence>
+
+      {/* Blast Particles */}
+      <AnimatePresence>
+        {blasts.map(blast => (
+          <div key={blast.id} className="fixed z-40 pointer-events-none" style={{ left: blast.x, top: blast.y }}>
+            {Array.from({ length: 12 }).map((_, i) => (
+              <motion.div
+                key={i}
+                initial={{ x: 0, y: 0, scale: 1, opacity: 1 }}
+                animate={{ 
+                  x: (Math.random() - 0.5) * 200, 
+                  y: (Math.random() - 0.5) * 200, 
+                  scale: 0, 
+                  opacity: 0,
+                  rotate: Math.random() * 360
+                }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                className={`absolute w-3 h-3 rounded-full ${blast.color}`}
+              />
+            ))}
+          </div>
         ))}
       </AnimatePresence>
     </>
@@ -357,16 +426,27 @@ const SurpriseView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="min-h-screen bg-[#0a0514] text-white overflow-y-auto relative font-sans"
+      className="min-h-screen bg-[#05020a] text-white overflow-y-auto relative font-sans"
     >
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(60,20,80,0.5)_0%,rgba(10,5,20,1)_100%)] fixed"></div>
-      <div className="absolute inset-0 opacity-20 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay fixed pointer-events-none"></div>
+      {/* Atmospheric Background */}
+      <div className="fixed inset-0 z-0">
+        <div className="absolute inset-0 bg-[#0a0514]"></div>
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-pink-900/20 blur-[120px] rounded-full"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-purple-900/20 blur-[150px] rounded-full"></div>
+        <div className="absolute top-[20%] right-[10%] w-[30%] h-[30%] bg-amber-900/10 blur-[100px] rounded-full"></div>
+        <div className="absolute inset-0 opacity-30 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay pointer-events-none"></div>
+      </div>
       
+      <FloatingParticles />
       <FloatingBalloons />
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 py-12 md:py-20">
-        <button onClick={onBack} className="text-pink-300 hover:text-white mb-8 flex items-center gap-2 transition-colors font-medium">
-          &larr; Back to Celebration
+        <button 
+          onClick={onBack} 
+          aria-label="Back to celebration"
+          className="group text-pink-300 hover:text-white mb-8 flex items-center gap-2 transition-all font-medium bg-white/5 hover:bg-white/10 px-4 py-2 rounded-full border border-white/10"
+        >
+          <span className="group-hover:-translate-x-1 transition-transform">&larr;</span> Back to Celebration
         </button>
 
         <motion.div 
@@ -383,7 +463,7 @@ const SurpriseView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             </div>
           </div>
 
-          <h2 className="font-serif italic text-3xl md:text-6xl text-center mb-8 md:mb-10 text-transparent bg-clip-text bg-gradient-to-r from-pink-200 to-white">
+          <h2 className="font-serif italic text-3xl md:text-6xl text-center mb-8 md:mb-10 text-transparent bg-clip-text bg-gradient-to-r from-pink-200 via-white to-pink-200 bg-[length:200%_auto] animate-gradient-x">
             A Year of Blessings Ahead
           </h2>
 
@@ -448,6 +528,17 @@ const SurpriseView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           ))}
         </div>
       </div>
+
+      {/* Scroll to top button */}
+      <motion.button
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        aria-label="Scroll to top"
+        className="fixed bottom-8 right-8 z-50 p-4 bg-pink-600/20 hover:bg-pink-600/40 border border-pink-500/30 rounded-full backdrop-blur-md transition-all text-pink-200 shadow-lg"
+      >
+        <Star size={20} className="fill-pink-200" />
+      </motion.button>
     </motion.div>
   );
 };
@@ -463,7 +554,19 @@ export default function App() {
     
     if (audioRef.current) {
       audioRef.current.volume = 0.5;
-      audioRef.current.play().catch(e => console.log("Audio play failed:", e));
+      const playPromise = audioRef.current.play();
+      
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          console.log("Audio play failed, trying fallback:", error);
+          // Fallback to a working URL if local file fails
+          if (audioRef.current) {
+            audioRef.current.src = "https://assets.mixkit.co/music/preview/mixkit-beautiful-dream-493.mp3";
+            audioRef.current.load();
+            audioRef.current.play().catch(e => console.log("Fallback audio also failed:", e));
+          }
+        });
+      }
     }
 
     const hearts = Array.from({ length: 20 }).map((_, i) => ({
@@ -510,12 +613,18 @@ export default function App() {
           exit={{ opacity: 0 }}
           className="min-h-screen bg-[#0a0514] text-white overflow-hidden relative font-sans flex flex-col items-center justify-center"
         >
+          {/* Enhanced Home Background */}
+          <div className="absolute inset-0 z-0">
+            <div className="absolute top-[-20%] right-[-10%] w-[70%] h-[70%] bg-pink-900/10 blur-[120px] rounded-full"></div>
+            <div className="absolute bottom-[-20%] left-[-10%] w-[70%] h-[70%] bg-purple-900/10 blur-[120px] rounded-full"></div>
+          </div>
+          
+          <FloatingParticles />
           {/* Background Effects */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(45,20,60,0.8)_0%,rgba(10,5,20,1)_100%)]"></div>
           <div className="absolute inset-0 opacity-30 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay"></div>
           
           <Petals />
-          <ShootingStars />
           <FloatingIcons />
 
           {/* Main Content */}
@@ -559,6 +668,24 @@ export default function App() {
                   >
                     <p>Blow out the candle 🕯️💨🎂</p>
                     <p className="text-sm opacity-60 mt-2 tracking-[0.3em]">— make a wish first! —</p>
+                    <button 
+                      onClick={() => {
+                        const newHearts = Array.from({ length: 5 }).map((_, i) => ({
+                          id: Date.now() + i,
+                          left: `${40 + Math.random() * 20}vw`,
+                          top: `60vh`,
+                          emoji: ['✨', '⭐', '🌟', '💫', '💖'][Math.floor(Math.random() * 5)]
+                        }));
+                        setFloatingHearts(prev => [...prev, ...newHearts]);
+                        setTimeout(() => {
+                          setFloatingHearts(prev => prev.filter(h => !newHearts.find(nh => nh.id === h.id)));
+                        }, 2000);
+                      }}
+                      aria-label="Make a wish"
+                      className="mt-4 text-pink-300/60 hover:text-pink-300 text-xs transition-colors flex items-center gap-2 mx-auto"
+                    >
+                      <Sparkles size={12} /> Make a Wish
+                    </button>
                   </motion.div>
                 ) : (
                   <motion.div
@@ -569,6 +696,7 @@ export default function App() {
                   >
                     <button 
                       onClick={handleSurpriseClick}
+                      aria-label="Enter surprise"
                       className="group relative px-6 py-4 md:px-10 md:py-5 bg-gradient-to-r from-pink-600 to-purple-600 rounded-full font-semibold text-white text-base md:text-lg shadow-[0_0_30px_rgba(236,72,153,0.4)] hover:shadow-[0_0_50px_rgba(236,72,153,0.7)] transition-all duration-300 hover:scale-105 overflow-hidden w-full max-w-[280px] md:max-w-none mx-auto"
                     >
                       <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
@@ -582,21 +710,23 @@ export default function App() {
             </div>
           </motion.main>
 
-          {/* Floating Hearts when blown */}
+          {/* Floating Hearts/Wishes */}
           <AnimatePresence>
             {floatingHearts.map(heart => (
               <motion.div
                 key={heart.id}
-                initial={{ opacity: 1, y: 0, scale: 0.5 }}
-                animate={{ opacity: 0, y: -300, scale: 2, rotate: Math.random() * 90 - 45 }}
-                transition={{ duration: 2.5, ease: "easeOut" }}
-                className="fixed z-50 pointer-events-none text-4xl drop-shadow-lg"
+                initial={{ opacity: 0, scale: 0, y: 0 }}
+                animate={{ opacity: [0, 1, 0], scale: [0.5, 1.5, 1], y: -200, x: (Math.random() - 0.5) * 100 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 2, ease: "easeOut" }}
+                className="absolute z-50 text-4xl pointer-events-none"
                 style={{ left: heart.left, top: heart.top }}
               >
                 {heart.emoji}
               </motion.div>
             ))}
           </AnimatePresence>
+
         </motion.div>
       )}
     </AnimatePresence>
