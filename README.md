@@ -85,4 +85,4 @@ Currently, the app plays a default Happy Birthday song from a web link. Here is 
    ```bash
    npm run build
    ```
-create by  💖YR RATHOTR
+   Made with ❤️ by Yashraj Singh Rathore
